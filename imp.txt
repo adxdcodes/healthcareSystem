@@ -1,0 +1,19 @@
+Sidebar Navigation (Minimal & Clean)
+Home (Dashboard Overview)
+
+My Health Records
+
+Appointments
+
+Prescriptions
+
+AI Health Predictions
+
+Emergency Contacts
+
+Settings & Profile
+
+Logout
+
+
+
