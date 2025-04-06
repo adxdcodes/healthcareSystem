@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const authRoutes = require("./routes/auth"); // ✅ Using require() instead of import
+const authRoutes = require("./routes/auth"); //
+const verifyRoute = require("./routes/verifyToken");
 
 dotenv.config(); // Load environment variables
 
@@ -12,6 +13,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Token verification
+app.use("/routes", verifyRoute);
 
 // ✅ Connect to MongoDB
 mongoose

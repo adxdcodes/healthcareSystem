@@ -1,19 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faNotesMedical } from "@fortawesome/free-solid-svg-icons";
-import { faCalendarCheck } from "@fortawesome/free-solid-svg-icons";
-import { faCapsules } from "@fortawesome/free-solid-svg-icons";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { faMicrochip } from "@fortawesome/free-solid-svg-icons";
+import {
+  faNotesMedical,
+  faCalendarCheck,
+  faCapsules,
+  faGear,
+  faRightFromBracket,
+  faMicrochip,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   AppstoreOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Button, Menu } from "antd";
+import { message } from "antd";
 import Header from "../components/Header";
 
+// Example patient data
 const patient = {
   name: "John Doe",
   age: 32,
@@ -28,6 +33,12 @@ const patient = {
     { date: "2024-04-10", doctor: "Dr. Smith", type: "General Checkup" },
   ],
 };
+
+// general consts
+// general consts
+
+// Menu Items
+// Menu Items
 
 const items = [
   {
@@ -45,7 +56,6 @@ const items = [
     icon: <FontAwesomeIcon icon={faCapsules} />,
     label: "Prescriptions",
   },
-
   {
     key: "4",
     label: "AI Health Predictions",
@@ -70,37 +80,84 @@ const items = [
 
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
 
+  // For Logout Functionality
+  const handleMenuClick = ({ key }) => {
+    if (key === "7") {
+      const hide = message.loading("Logging out...", 1.5); // Show loading message
+
+      setTimeout(() => {
+        hide(); // Close the message after 1.5s
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        message.success("Logged out successfully!", 1); // Optional success message
+        navigate("/login");
+      }, 1500);
+    } else {
+      // console.log("Menu item clicked:", key);
+    }
+  };
+
+  // Check if the user is logged in
+  // Check if the user is logged in
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+    } else {
+      fetch("http://localhost:5000/routes/verifyToken", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Unauthorized");
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem("token");
+          navigate("/login");
+        });
+    }
+  }, [navigate]);
+
   return (
-    <div className=" bg-gray-900">
-      <Header />{" "}
+    <div className="bg-gray-900">
+      <Header />
       <div className="flex transition-all">
-        <div className="h-screen flex flex-col {`${collapsed ? 'w-16' : 'w-64'}`} transition-all">
-          {/* Toggle Button */}
+        <div
+          className={`h-screen flex flex-col ${
+            collapsed ? "w-16" : "w-64"
+          } transition-all`}
+        >
           <div className="p-4">
             <Button type="primary" onClick={toggleCollapsed}>
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Button>
           </div>
-
-          {/* Full Height Menu */}
-
           <div className="flex-grow">
             <Menu
               defaultSelectedKeys={["1"]}
-              defaultOpenKeys={["sub1"]}
               mode="inline"
               theme="dark"
               inlineCollapsed={collapsed}
               items={items}
+              onClick={handleMenuClick}
               className="h-full"
             />
           </div>
-        </div>{" "}
-        <div className="w-full h-full ">
+        </div>
+        <div className="w-full h-full">
           <div className="p-6 min-h-screen">
             <h2 className="text-3xl font-bold text-white mb-6">
               Welcome, {patient.name}

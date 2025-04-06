@@ -9,10 +9,22 @@ const router = express.Router();
 
 // Register API
 router.post("/register", async (req, res) => {
-  const { fname, lname, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
+
   try {
+    const existingUser = await User.findOne({ email });
+    // Check if user already exists
+    if (existingUser)
+      return res.status(400).json({ error: "User already exists" });
+
+    // if not, then hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ fname, lname, email, password: hashedPassword });
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -33,10 +45,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email },
-    });
+    res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
