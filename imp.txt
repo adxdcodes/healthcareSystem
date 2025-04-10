@@ -1,19 +1,33 @@
-Sidebar Navigation (Minimal & Clean)
-Home (Dashboard Overview)
+You are a highly skilled medical assistant with expertise in diagnostics. Based on the patient’s information below, provide a detailed diagnostic insight including possible conditions, necessary tests, and urgent flags if any.
 
-My Health Records
+Patient Information:
+- Age: 48
+- Sex: Male
+- Weight: 82 kg
+- Height: 170 cm
+- Blood Pressure: 150/95 mmHg
+- Fasting Blood Sugar: 132 mg/dL
+- Postprandial Blood Sugar: 180 mg/dL
+- Cholesterol (Total): 220 mg/dL
+- Heart Rate: 88 bpm
+- Temperature: 98.7°F
+- Existing Conditions: None
+- Family History: Father had type 2 diabetes and hypertension
+- Lifestyle: Sedentary, rarely exercises
+- Diet: High in carbs and fats, low in fiber
+- Smoker: Yes
+- Alcohol: Occasionally
+- Sleep: 5–6 hours per night
+- Main Complaints: Frequent fatigue, blurred vision occasionally, increased thirst
 
-Appointments
+Based on the above, provide:
+1. A summary of the key health concerns
+2. Probable diagnoses
+3. Recommended tests and next steps
+4. Preventive measures or lifestyle changes
+5. Any red flags or emergency risks
 
-Prescriptions
-
-AI Health Predictions
-
-Emergency Contacts
-
-Settings & Profile
-
-Logout
+Keep the response professional, detailed, and accurate.
 
 
-
+DEEPSEEK promt

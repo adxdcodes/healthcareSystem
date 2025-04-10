@@ -8,7 +8,7 @@ require("dotenv").config();
 // Secret key — make sure it's the same one used when generating the token
 const SECRET_KEY = process.env.JWT_SECRET;
 
-router.post("/verifyToken", (req, res) => {
+router.post("/", (req, res) => {
   const authHeader = req.headers.authorization;
   //   console.log(authHeader);
 

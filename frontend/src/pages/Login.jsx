@@ -134,7 +134,7 @@ const Home = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-4 bg-[#00a896] text-white py-2 rounded-lg transition ${
+              className={`mt-4 cursor-pointer bg-[#00a896] text-white py-2 rounded-lg transition ${
                 loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#02c39a]"
               }`}
             >

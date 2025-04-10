@@ -98,6 +98,8 @@ const App = () => {
         message.success("Logged out successfully!", 1); // Optional success message
         navigate("/login");
       }, 1500);
+    } else if (key === "4") {
+      navigate("/chat");
     } else {
       // console.log("Menu item clicked:", key);
     }

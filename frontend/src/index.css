@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+.noselect {
+  user-select: none;
+}
+
+.yesselect {
+  user-select: text;
+}

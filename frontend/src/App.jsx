@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Sidebar from "./components/Sidebar";
 import UserDash from "./pages/UserDash";
+import Chat from "./pages/Chat.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/sidebar" element={<Sidebar />}></Route>
           <Route path="/dashboard" element={<UserDash />}></Route>
+          <Route path="/chat" element={<Chat />}></Route>
         </Routes>
       </div>
       <Footer />

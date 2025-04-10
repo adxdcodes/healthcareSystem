@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const authRoutes = require("./routes/auth"); //
 const verifyRoute = require("./routes/verifyToken");
+const chatBot = require("./routes/chat");
 
 dotenv.config(); // Load environment variables
 
@@ -15,7 +16,8 @@ app.use(express.json());
 app.use(cors());
 
 // Token verification
-app.use("/routes", verifyRoute);
+app.use("/routes/verifyToken", verifyRoute);
+app.use("/routes/chat", chatBot);
 
 // ✅ Connect to MongoDB
 mongoose
