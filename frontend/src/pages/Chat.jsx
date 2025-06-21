@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faNotesMedical,
@@ -17,7 +18,6 @@ import {
 import { Button, Menu, Spin, message } from "antd";
 import Header from "../components/Header";
 
-// Menu Items
 const items = [
   {
     key: "1",
@@ -57,17 +57,30 @@ const items = [
 ];
 
 const App = () => {
+  // PatientId fetching and setting
+  // PatientId fetching and setting
+  const [patientId, setPatientId] = useState(
+    sessionStorage.getItem("patientId")
+  );
+
+  useEffect(() => {
+    const storedId = sessionStorage.getItem("patientId");
+    setPatientId(storedId);
+  }, [location.pathname]);
+
+  // PatientId fetching and setting
+  // PatientId fetching and setting
+
   const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate();
   const [chInput, setChInput] = useState("");
   const [chMsg, setChMsg] = useState([
-    { sender: "bot", text: "Hello! How are you feeling today?!" },
+    { sender: "ai", text: "How are you feeling today?!" },
   ]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const messagesEndRef = useRef(null);
 
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
+  const toggleCollapsed = () => setCollapsed(!collapsed);
 
   const handleMenuClick = ({ key }) => {
     if (key === "7") {
@@ -76,6 +89,7 @@ const App = () => {
         hide();
         localStorage.removeItem("token");
         sessionStorage.removeItem("token");
+        sessionStorage.removeItem("patientId");
         message.success("Logged out successfully!", 1);
         navigate("/login");
       }, 1500);
@@ -83,6 +97,8 @@ const App = () => {
       navigate("/dashboard");
     } else if (key === "4") {
       navigate("/chat");
+    } else if (key === "6") {
+      navigate("/complete-profile");
     }
   };
 
@@ -110,11 +126,38 @@ const App = () => {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    if (!patientId) return;
+    const fetchLastFourChats = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/routes/chat/${patientId}/last4`
+        );
+        const data = await res.json();
+        console.log(data.message);
+        const formattedMsgs = data.message.map((msg) => ({
+          sender: msg.role === "user" ? "user" : "ai",
+          text: msg.content,
+        }));
+
+        setChMsg(formattedMsgs.length > 0 ? formattedMsgs : chMsg);
+      } catch (err) {
+        console.error("Error fetching last 4 chats:", err);
+      }
+    };
+    fetchLastFourChats();
+  }, [patientId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chMsg]);
+
   const sendMessage = async () => {
     if (!chInput.trim() || loading) return;
 
     const userMsg = { sender: "user", text: chInput };
     setChMsg((prev) => [...prev, userMsg]);
+    const tempInput = chInput;
     setChInput("");
     setLoading(true);
 
@@ -124,17 +167,17 @@ const App = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: chInput }),
+        body: JSON.stringify({ message: tempInput, patientId }),
       });
 
       const data = await response.json();
-      const botMsg = { sender: "bot", text: data.reply };
+      const botMsg = { sender: "ai", text: data.reply };
       setChMsg((prev) => [...prev, botMsg]);
     } catch (error) {
       console.error("Error:", error);
       setChMsg((prev) => [
         ...prev,
-        { sender: "bot", text: "Sorry, something went wrong." },
+        { sender: "ai", text: "Sorry, something went wrong." },
       ]);
     } finally {
       setLoading(false);
@@ -142,12 +185,13 @@ const App = () => {
   };
 
   return (
-    <div className="bg-gray-900 noselect">
+    <div className="bg-gray-900 h-screen overflow-hidden flex flex-col">
       <Header />
-      <div className="flex transition-all">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
         <div
-          className={`h-screen flex flex-col ${
-            collapsed ? "w-16" : "w-64"
+          className={`h-full flex flex-col ${
+            collapsed ? "w-20" : "w-64"
           } transition-all`}
         >
           <div className="p-4">
@@ -155,7 +199,7 @@ const App = () => {
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Button>
           </div>
-          <div className="flex-grow">
+          <div className="flex-1">
             <Menu
               defaultSelectedKeys={["4"]}
               mode="inline"
@@ -163,54 +207,55 @@ const App = () => {
               inlineCollapsed={collapsed}
               items={items}
               onClick={handleMenuClick}
-              className="h-full"
             />
           </div>
         </div>
-        <div className="w-full h-full">
-          <div className="p-8 min-h-screen">
-            <h2 className="text-3xl font-bold text-white mb-6">AI guide!</h2>
-            <div className="max-w mx-auto p-10 border rounded shadow bg-white h-[600px] flex flex-col">
-              <div className="flex-1 overflow-y-auto space-y-2 mb-4">
-                {chMsg.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`p-2 rounded-lg max-w-[80%] ${
-                      msg.sender === "user"
-                        ? "bg-blue-100 text-right ml-auto"
-                        : "bg-white"
-                    }`}
-                  >
-                    <pre className="yesselect text-xl whitespace-pre-wrap font-sans">
-                      {msg.text}
-                    </pre>
-                    {/* Hor line */}
-                    {msg.sender === "bot" && index < chMsg.length && (
-                      <hr className="my-2 border-gray-300" />
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-1 px-10">
-                <input
-                  type="text"
-                  className="flex-1 border rounded px-5 py-2 mx-2"
-                  placeholder="Type your message..."
-                  value={chInput}
-                  onChange={(e) => setChInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                  disabled={loading}
-                />
-                <button
-                  className={`bg-blue-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-blue-600 flex items-center justify-center ${
-                    loading ? "cursor-not-allowed opacity-100" : ""
+
+        {/* Chat Area */}
+        <div className="w-full h-full flex flex-col p-8 overflow-hidden">
+          <h2 className="text-3xl font-bold text-white mb-6">AI Guide!</h2>
+          <div className="flex-1 p-6 border rounded shadow bg-white flex flex-col overflow-hidden">
+            {/* Chat messages */}
+
+            <div className="flex-1 overflow-y-auto pr-4 space-y-4">
+              <p className="bg-gray-100 text-left p-3 rounded-lg max-w-[80%] whitespace-pre-wrap">
+                Hello! This is MedGuardian.
+              </p>
+              {chMsg.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg max-w-[80%] whitespace-pre-wrap ${
+                    msg.sender === "user"
+                      ? "bg-blue-100 text-right ml-auto"
+                      : "bg-gray-100 text-left"
                   }`}
-                  onClick={sendMessage}
-                  disabled={loading}
                 >
-                  {loading ? <Spin size="small" /> : "Send"}
-                </button>
-              </div>
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input area */}
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                className="flex-1 border rounded px-5 py-2"
+                placeholder="Type your message..."
+                value={chInput}
+                onChange={(e) => setChInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                disabled={loading}
+              />
+              <button
+                className={`bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={sendMessage}
+                disabled={loading}
+              >
+                {loading ? <Spin size="small" /> : "Send"}
+              </button>
             </div>
           </div>
         </div>

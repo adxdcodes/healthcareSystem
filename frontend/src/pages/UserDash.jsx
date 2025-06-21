@@ -79,6 +79,18 @@ const items = [
 ];
 
 const App = () => {
+  // Patient Id fetching from local
+  // Patient Id fetching from local
+  const [patientId, setPatientId] = useState(
+    sessionStorage.getItem("patientId")
+  );
+
+  useEffect(() => {
+    const storedId = sessionStorage.getItem("patientId");
+    setPatientId(storedId);
+  }, [location.pathname]);
+  // console.log(patientId);
+
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -100,6 +112,8 @@ const App = () => {
       }, 1500);
     } else if (key === "4") {
       navigate("/chat");
+    } else if (key === "6") {
+      navigate("/complete-profile");
     } else {
       // console.log("Menu item clicked:", key);
     }
@@ -139,7 +153,7 @@ const App = () => {
       <div className="flex transition-all">
         <div
           className={`h-screen flex flex-col ${
-            collapsed ? "w-16" : "w-64"
+            collapsed ? "w-20" : "w-64"
           } transition-all`}
         >
           <div className="p-4">
@@ -162,7 +176,7 @@ const App = () => {
         <div className="w-full h-full">
           <div className="p-6 min-h-screen">
             <h2 className="text-3xl font-bold text-white mb-6">
-              Welcome, {patient.name}
+              Welcome, {patient.name} {patientId}
             </h2>
 
             {/* Profile Section */}

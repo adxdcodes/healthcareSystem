@@ -72,6 +72,12 @@ const Home = () => {
         message.success("Logged in!", 1);
         navigate("/dashboard");
       }, 1500);
+      // for decoding the jwt to std
+
+      const token = data.token;
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      // console.log(decoded.patientId); // You get the patientId
+      sessionStorage.setItem("patientId", decoded.patientId);
 
       setLoading(false);
     } catch (err) {
